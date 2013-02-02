@@ -1366,7 +1366,7 @@ global virtual without sharing class CommonObj {
 									m.Product_Code__r.m_Package_Type__c, m.Product_Code__r.Product_Line_NS__c, m.Product_Code__r.ProductCode, 
 									m.Product_Code__r.Package_Classification__c, m.Product_Code__r.Name, m.Product_Code__r.Is_Package__c, m.Product_Code__r.IsActive,
 									 m.Product_Code__r.Id, m.Product_Code__r.Family, m.Product_Code__r.Description From m_Product_UOM__c m
-									 where m.Product_Code__r.IsActive=true and m.m_LU_UOM__c<>null/* and
+									 where m.Product_Code__r.IsActive=true and m.m_LU_UOM__c<>null and m.Product_Code__r.Can_be_Sold__c=true /* and
 								  	m.Product_Code__c in (select pr.Product_Code__c from m_Product_Regions__c pr where pr.Region__c=:countryCode)*/]){
 					
 				if (productMap.containsKey(pr2.Product_Code__r.Id)){
@@ -1435,7 +1435,8 @@ global virtual without sharing class CommonObj {
 								  m.Product_Code__r.Family,m.Product_Code__r.Name, m.Product_Code__r.IsActive, m.Product_Code__r.Description, 
 								  m.Product_Code__r.ProductCode, m.Product_Code__r.Id, m.Product_Code__r.m_Package_Type__c, m.m_module_display_order__c,
 								  m.Product_Code__c, m.Id From m_Product_Relationship__c m
-								  where m.Product_Code__r.IsActive=true and m.Related_Product_Code__r.IsActive=true and
+								  where m.Product_Code__r.Can_be_Sold__c=true and m.Related_Product_Code__r.Can_be_Sold__c=true 
+								  		and m.Product_Code__r.IsActive=true and m.Related_Product_Code__r.IsActive=true and
 								  	m.Product_Code__r.Is_Package__c=true and m.Product_Code__r.m_Package_Type__c in ('Ala Carte','All')/* and
 								  	m.Product_Code__c in (select pr.Product_Code__c from m_Product_Regions__c pr where pr.Region__c=:countryCode) and
 								  	m.Related_Product_Code__c in (select pr.Product_Code__c from m_Product_Regions__c pr where pr.Region__c=:countryCode)*/]){
@@ -1491,7 +1492,8 @@ global virtual without sharing class CommonObj {
 			for (m_Product_Relationship__c prc:[Select m.Related_Product_Code__r.Id, m.Id, m.License_Recommended__c,
 													m.License_Max_Qty__c,m.License_Min_Qty__c, m.License_Unit__c
 													From m_Product_Relationship__c m
-								  where m.Product_Code__c=:productId and m.Related_Product_Code__r.IsActive=true 
+								  where m.Product_Code__r.Can_be_Sold__c=true and m.Related_Product_Code__r.Can_be_Sold__c=true and 
+								  	m.Product_Code__c=:productId and m.Related_Product_Code__r.IsActive=true 
 								   and m.Relation_Type__c='Pre-Req' /*and
 								  	m.Related_Product_Code__c in (select pr.Product_Code__c from m_Product_Regions__c pr where pr.Region__c=:countryCode)*/]){
 				
@@ -1524,7 +1526,8 @@ global virtual without sharing class CommonObj {
 								  m.Product_Code__r.Family,m.Product_Code__r.Name, m.Product_Code__r.IsActive, m.Product_Code__r.Description, 
 								  m.Product_Code__r.ProductCode, m.Product_Code__r.Id, m.Product_Code__r.m_Package_Type__c, m.m_module_display_order__c,
 								  m.Product_Code__c, m.Id From m_Product_Relationship__c m
-								  where m.Product_Code__r.IsActive=true and m.Related_Product_Code__r.IsActive=true and
+								  where m.Product_Code__r.Can_be_Sold__c=true and m.Related_Product_Code__r.Can_be_Sold__c=true and
+								  	m.Product_Code__r.IsActive=true and m.Related_Product_Code__r.IsActive=true and
 								  	m.Product_Code__r.Package_Classification__c<>null and
 								  	m.Product_Code__r.Is_Package__c=true and m.Product_Code__r.m_Package_Type__c in ('Ala Carte','All','Pick 1','Pick N of M') /*and
 								  	m.Product_Code__c in (select pr.Product_Code__c from m_Product_Regions__c pr where pr.Region__c=:countryCode) and
