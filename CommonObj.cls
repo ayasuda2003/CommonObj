@@ -753,9 +753,22 @@ global virtual without sharing class CommonObj {
 		public void addShoppingCartItem(string productId){
 			integer seq=productShoppingCart.size()+1000;
 			
-			if (productShoppingCart.containsKey(productId))
+			// actual products in the cart
+			map<string,string> pIds=new map<string,string>();
+			for (ProductMatrixObject pmoq:productShoppingCart.values()){
+				string[] sfdcIds=pmoq.sfdcId.split('-', -2);
+				if (sfdcIds.size()>1)
+					pIds.put(sfdcIds[1],pmoq.sfdcId);
+				else
+					pIds.put(pmoq.sfdcId,pmoq.sfdcId);
+							
+			}
+			
+			//if (productShoppingCart.containsKey(productId))
+			//	return;
+			if (pIds.containsKey(productId))
 				return;
-				
+			
 			if (productMap.containsKey(productId)){
 				ProductMatrixObject pmo=productMap.get(productId);
 				ProductMatrixObject pmo2=new ProductMatrixObject(pmo);
@@ -770,9 +783,10 @@ global virtual without sharing class CommonObj {
 				pmo2.orgQty=pmo2.qty;
 				productShoppingCart.put(pmo2.sfdcId,pmo2);
 				seq++;	
+				
 				map<string,QuantityType> op=loadPreReqProductsList(pmo2.sfdcId);
 				for (string prodId:op.keySet()){
-					if (productShoppingCart.containsKey(prodId)) continue;
+					if (pIds.containsKey(prodId)) continue;
 					
 					if (productMap.containsKey(prodId)){
 						
@@ -1027,8 +1041,19 @@ global virtual without sharing class CommonObj {
 				}
 			} 
 			
+			// actual products in the cart
+			map<string,string> pIds=new map<string,string>();
+			for (ProductMatrixObject pmoq:productShoppingCart.values()){
+				string[] sfdcIds=pmoq.sfdcId.split('-', -2);
+				if (sfdcIds.size()>1)
+					pIds.put(sfdcIds[1],pmoq.sfdcId);
+				else
+					pIds.put(pmoq.sfdcId,pmoq.sfdcId);
+							
+			}
+			
 			for (string prodId:pmo.preReq.keySet()){
-				if (productShoppingCart.containsKey(prodId)) continue;
+				if (pIds.containsKey(prodId)) continue;
 				
 				if (productMap.containsKey(prodId)){
 					ProductMatrixObject pmoz=new ProductMatrixObject(productMap.get(prodId));
@@ -1085,13 +1110,18 @@ global virtual without sharing class CommonObj {
 		public boolean validatePreReqAnyOne(){
 			boolean isValid=true;
 			//Actual products in the cart
+			map<string,string> pAIds=new map<string,string>();
+			//Root products in the cart
 			map<string,string> pIds=new map<string,string>();
 			for (ProductMatrixObject pmoq:productShoppingCart.values()){
 				string[] sfdcIds=pmoq.sfdcId.split('-', -2);
 				if (sfdcIds.size()>1)
-					pIds.put(sfdcIds[0],pmoq.sfdcId);
-				else
+					pAIds.put(sfdcIds[1],pmoq.sfdcId);
+				else{
 					pIds.put(pmoq.sfdcId,pmoq.sfdcId);
+					pAIds.put(pmoq.sfdcId,pmoq.sfdcId);
+				
+				}
 							
 			}
 			
@@ -1141,13 +1171,18 @@ global virtual without sharing class CommonObj {
 								// work when one of the Pre-Req Any 1 list flagged as default.
 								if (defaultProduct.containsKey(pId)){
 									boolean isAnyAsset=false;
+									boolean isAnyCartProd=false;
 									for (string op:lpro.get(pId).keySet()){
 										if (bizObj.IsAnAssetOnAccount(op)){
 											isAnyAsset=true;
 											break;
 										}
+										if (pAIds.containsKey(op)){
+											isAnyCartProd=true;
+											break;		
+										}
 									}
-									if (!isAnyAsset){
+									if (!isAnyAsset&&!isAnyCartProd){
 										addCommonMessage('To add \'' + pmo.productCode + '\' to the cart, you need at least one of ' + str);
 										addShoppingCartItem(defaultProduct.get(pId));
 										resetShoppingCartPricing(ApexPages.currentPage().getParameters());
